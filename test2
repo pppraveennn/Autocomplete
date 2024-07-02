@@ -1,0 +1,6 @@
+import requests
+
+response = requests.get("http://suggestqueries.google.com/complete/search?client=chrome&q=hel")
+autocompletes = response.json()[1][:9]
+
+print(autocompletes)
