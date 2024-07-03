@@ -23,7 +23,7 @@ def phrase_length(phrase: str):
             length += 1
     return length
 
-guess = get_guess("hello kitty", 3)
+guess = get_guess("book a hotel room in hawaii", 3)
 print(guess)
 response = requests.get("http://suggestqueries.google.com/complete/search?client=chrome&q="+guess)
 autocompletes = response.json()[1][:9]
