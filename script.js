@@ -3,6 +3,9 @@ window.onload=function() {
     const searchBox = document.getElementById("guess");
     var score = 0;
     var turn = 1;
+    var phraseList;
+    var currPhrase;
+    var nextPhrase;
     const apiUrl = "http://127.0.0.1:8000/";
 
     async function getData(url) {
@@ -11,70 +14,106 @@ window.onload=function() {
         return data;
     }
 
+    function numSpaces(phrase) {
+        let count = 0;
+        for (let i = 0; i < phrase.length; i++) {
+            if (phrase.charAt(i) === " ") {
+                count++;
+            }
+        }
+        return count;
+    }
 
-    function updateScore(data) {
-        if (data.Error) {
-            document.getElementById("output").innerHTML = data.Error;
+    function phraseLength(phrase) {
+        return phrase.length - numSpaces(phrase);
+    }
+
+    function vaildGuess(phrase, guess) {
+        return (phrase.search(guess) != -1);
+    }
+
+    function updateScore(guess) {
+        let delta = Math.max(phraseLength(currPhrase.Optimal) - phraseLength(guess), 
+                    phraseLength(guess) - phraseLength(currPhrase.Optimal))
+    
+        if (delta == 0) {
+            document.getElementById("output").innerHTML = 
+            "You had the optimal guess!";
+        }
+        else if (delta == 1) {
+            document.getElementById("output").innerHTML = 
+            "You were " + String(delta) + ' letter away from the optimal guess, "' + currPhrase.Optimal + '"!';
+        } 
+        else {
+            document.getElementById("output").innerHTML = 
+            "You were " + String(delta) + ' letters away from the optimal guess, "' + currPhrase.Optimal + '"!';
+        }
+        score += delta;
+        document.getElementById("score").innerHTML = "Score: " + String(score);
+        if (turn === 10) {
+            endGame();
         }
         else {
-            if (data.Score == 1) {
-                document.getElementById("output").innerHTML = 
-                "You were " + String(data.Score) + ' letter away from the optimal guess, "' + data.Optimal + '"!';
-            } 
-            else {
-                document.getElementById("output").innerHTML = 
-                "You were " + String(data.Score) + ' letters away from the optimal guess, "' + data.Optimal + '"!';
-            }
-            score += data.Score;
-            document.getElementById("score").innerHTML = "Score: " + String(score);
-            if (turn === 10) {
-                endGame();
-            }
-            else {
-                turn += 1;
-                document.getElementById("guess-number").innerHTML = "Guess #" + String(turn);
-                setPhrase();
-                document.getElementById("guess").value = ""
-            }
-            
+            turn += 1;
+            document.getElementById("guess-number").innerHTML = "Guess #" + String(turn);
+            setPhrase();
+            document.getElementById("guess").value = ""
         }
+        
+    }
+    
+
+    function getPhrases() {
+        getData(apiUrl+"get-phrase-list").then(data => 
+            phraseList = data);
     }
 
     function setPhrase() {
-        getData(apiUrl+"get-phrase").then(data => 
-            document.getElementById("guess").setAttribute("placeholder", data.Phrase));
+        currPhrase = phraseList[String(turn)];
+        document.getElementById("guess").setAttribute("placeholder", currPhrase.Phrase);
     }
 
     function submitGuess() {
         let guess = document.getElementById("guess").value;
-        console.log(guess);
-        let phrase = document.getElementById("guess").getAttribute("placeholder");
-        document.getElementById("output").innerHTML = "loading..."
-        getData(apiUrl+"get-score/?phrase="+phrase+"&guess="+guess).then(data =>
-            updateScore(data)
-        )
+        let phrase = currPhrase.Phrase;
+        if (!vaildGuess(phrase, guess)) {
+            document.getElementById("output").innerHTML = "Your guess must be a part of the search phrase!";
+        }
+        else {
+            document.getElementById("output").innerHTML = "Searching Autocomplete...";
+            updateScore(guess);
+        }
+        
     }
 
     function endGame() {
         document.getElementById("guess-number").innerHTML = "Game over!";
         document.getElementById("guess").setAttribute("placeholder", "Game over!");
         document.getElementById("guess").value = "";
+        document.getElementById("output").innerHTML = "Final " + document.getElementById("output").innerHTML
         searchButton.removeEventListener("click", submitOnClick);
         searchBox.removeEventListener("keydown", submitOnEnter);
         
     }
 
     function submitOnClick(event) {
-        submitGuess();
+        if (document.getElementById("guess").value.length != 0) {
+            submitGuess();
+        }
+        
     }
 
     function submitOnEnter(event) {
         if (event.key === "Enter") {
-            submitGuess();
+            if (document.getElementById("guess").value.length != 0) {
+                submitGuess();
+            }
+            
         }
     }
 
-    setPhrase();
+    getPhrases()
+    setTimeout(() => setPhrase(), 1000);
     searchButton.addEventListener("click", 
         submitOnClick
     )

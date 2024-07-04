@@ -1,29 +1,11 @@
-from fastapi import FastAPI, Path
-from typing import Optional
-import requests
-from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
 import random
 import csv
-
-app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"]
-)
 
 reader = csv.DictReader(open('phrases/phrases.csv'))
 phrases = []
 for row in reader:
     phrases.append(row)
 
-@app.get("/get-phrase")
-def get_phrase():
-    return random.choice(phrases)
-
-@app.get("/get-phrase-list")
 def get_phrase_list():
     phrase_list = []
     while len(phrase_list) < 10:
@@ -34,3 +16,5 @@ def get_phrase_list():
     for i in range(1, len(phrase_list) + 1):
         phrase_dict[str(i)] = phrase_list[i-1]
     return phrase_dict
+
+print(get_phrase_list())

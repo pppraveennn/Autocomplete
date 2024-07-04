@@ -1,0 +1,42 @@
+import requests
+import csv
+import pandas as pd
+from time import sleep
+
+reader = csv.DictReader(open('phrases/input2.csv'))
+phrases = []
+for row in reader:
+    phrases.append(row)
+
+def get_optimal(phrase: str):
+    phrase = phrase.lower()
+    for i in range(1, len(phrase)):
+        guess = phrase[:i]
+        response = requests.get("http://suggestqueries.google.com/complete/search?client=chrome&q="+guess)
+        if (not response):
+            print("Could not access autocomplete API")
+            sleep(1)
+            return get_optimal(phrase)
+        autocompletes = response.json()[1][:9]
+        if (phrase in autocompletes):
+            return {"Phrase": phrase,
+                "Optimal": guess}
+
+print(get_optimal("Hello kitty"))
+
+good_phrases = []
+count = 1
+for phrase in phrases:
+    print(count)
+    optimal = get_optimal(phrase["Phrase"])
+    if optimal != None and len(phrase["Phrase"]) <= 40:
+        good_phrases.append(optimal)
+    count += 1
+
+with open("phrases/output.csv", "w") as csvfile:
+    fieldnames = ["Phrase", "Optimal"]
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
+    for phrase in good_phrases:
+        print(phrase)
+        writer.writerow(phrase)
