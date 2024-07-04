@@ -1,7 +1,4 @@
 from fastapi import FastAPI, Path
-from typing import Optional
-import requests
-from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import random
 import csv
