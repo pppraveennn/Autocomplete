@@ -90,7 +90,7 @@ window.onload=function() {
         document.getElementById("guess-number").innerHTML = "Game over!";
         document.getElementById("guess").setAttribute("placeholder", "Game over!");
         document.getElementById("guess").value = "";
-        document.getElementById("output").innerHTML = "Final " + document.getElementById("output").innerHTML
+        document.getElementById("score").innerHTML = "Final " + document.getElementById("score").innerHTML
         searchButton.removeEventListener("click", submitOnClick);
         searchBox.removeEventListener("keydown", submitOnEnter);
         
