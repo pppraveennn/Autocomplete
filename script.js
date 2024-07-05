@@ -6,7 +6,7 @@ window.onload=function() {
     var phraseList;
     var currPhrase;
     var nextPhrase;
-    const apiUrl = "http://127.0.0.1:8000/";
+    const apiUrl = "https://autocomplete-piu1.onrender.com/";
 
     async function getData(url) {
         let response = await fetch(url);
