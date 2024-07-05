@@ -29,7 +29,7 @@ window.onload=function() {
     }
 
     function vaildGuess(phrase, guess) {
-        return (phrase.search(guess) != -1);
+        return (phrase.toLowerCase().search(guess.toLowerCase()) != -1);
     }
 
     function updateScore(guess) {
