@@ -11,6 +11,10 @@ app.add_middleware(
     allow_methods=["*"]
 )
 
+@app.get("/")
+async def root():
+    return {"message": "Check /docs for documentation"}
+
 reader = csv.DictReader(open('phrases/phrases.csv'))
 phrases = []
 for row in reader:
