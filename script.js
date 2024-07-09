@@ -7,8 +7,8 @@ window.onload=function() {
     var currPhrase;
     var nextPhrase;
     var rankings;
-    // const apiUrl = "https://autocomplete-piu1.onrender.com/";
-    const apiUrl = "http://127.0.0.1:8000/";
+    const apiUrl = "https://autocomplete-piu1.onrender.com/";
+    // const apiUrl = "http://127.0.0.1:8000/";
 
     async function getData(url) {
         let response = await fetch(url);
