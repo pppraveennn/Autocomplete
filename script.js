@@ -27,8 +27,9 @@ window.onload=function() {
         document.getElementById("lb").style.display = "none";
     }
 
-    function showLeaderboard() {
-        getData(apiUrl+"get-leaderboard").then(data => 
+    async function showLeaderboard() {
+        await getData(apiUrl+"get-rank?score="+score).then(data => document.getElementById("rank").innerHTML += data.Rank+"!");
+        await getData(apiUrl+"get-leaderboard").then(data => 
             rankings = data);
         setTimeout(() =>  {
             for (let i = 1; i <= 10; i++) {
@@ -39,10 +40,11 @@ window.onload=function() {
                     document.getElementById("date"+String(i)).innerHTML = date;
                 }
             }
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("lb").style.display = "block";
         }, 1000);
-        let rank;
-        getData(apiUrl+"get-rank?score="+score).then(data => document.getElementById("rank").innerHTML += data.Rank+"!");
-        document.getElementById("lb").style.display = "block";
+
+        // setTimeout(() => document.getElementById("lb").style.display = "block", 1000);
     }
 
     function numSpaces(phrase) {
@@ -124,6 +126,7 @@ window.onload=function() {
         document.getElementById("score").innerHTML = "Final " + document.getElementById("score").innerHTML
         searchButton.removeEventListener("click", submitOnClick);
         searchBox.removeEventListener("keydown", submitOnEnter);
+        document.getElementById("loading").style.display = "block";
         await postData(apiUrl+"post-score", {score: score});
         showLeaderboard();
     }
