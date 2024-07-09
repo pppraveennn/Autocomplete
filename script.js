@@ -6,12 +6,43 @@ window.onload=function() {
     var phraseList;
     var currPhrase;
     var nextPhrase;
+    var rankings;
     const apiUrl = "https://autocomplete-piu1.onrender.com/";
+    // const apiUrl = "http://127.0.0.1:8000/";
 
     async function getData(url) {
         let response = await fetch(url);
         let data = await response.json();
         return data;
+    }
+
+    async function postData(url, data) {
+        await fetch(url, {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify(data)});
+    }
+
+    function hideLeaderboard() {
+        document.getElementById("lb").style.display = "none";
+    }
+
+    function showLeaderboard() {
+        getData(apiUrl+"get-leaderboard").then(data => 
+            rankings = data);
+        setTimeout(() =>  {
+            for (let i = 1; i <= 10; i++) {
+                let doc = rankings[String(i)];
+                if (doc) {
+                    let date = doc.Month+"/"+doc.Day+"/"+doc.Year;
+                    document.getElementById("score"+String(i)).innerHTML = doc.Score;
+                    document.getElementById("date"+String(i)).innerHTML = date;
+                }
+            }
+        }, 1000);
+        let rank;
+        getData(apiUrl+"get-rank?score="+score).then(data => document.getElementById("rank").innerHTML += data.Rank+"!");
+        document.getElementById("lb").style.display = "block";
     }
 
     function numSpaces(phrase) {
@@ -86,14 +117,15 @@ window.onload=function() {
         
     }
 
-    function endGame() {
+    async function endGame() {
         document.getElementById("guess-number").innerHTML = "Game over!";
         document.getElementById("guess").setAttribute("placeholder", "Game over!");
         document.getElementById("guess").value = "";
         document.getElementById("score").innerHTML = "Final " + document.getElementById("score").innerHTML
         searchButton.removeEventListener("click", submitOnClick);
         searchBox.removeEventListener("keydown", submitOnEnter);
-        
+        await postData(apiUrl+"post-score", {score: score});
+        showLeaderboard();
     }
 
     function submitOnClick(event) {
@@ -112,7 +144,8 @@ window.onload=function() {
         }
     }
 
-    getPhrases()
+    hideLeaderboard();
+    getPhrases();
     setTimeout(() => setPhrase(), 1000);
     searchButton.addEventListener("click", 
         submitOnClick
